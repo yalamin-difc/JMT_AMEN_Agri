@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.eShopWeb.Infrastructure.Data;
 using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.Extensions.Configuration;
@@ -20,34 +21,34 @@ public static class Dependencies
         if (useOnlyInMemoryDatabase)
         {
             services.AddDbContext<CatalogContext>((provider, options) =>
-               options.UseInMemoryDatabase("Catalog"));
+                options.UseInMemoryDatabase("Catalog"));
 
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseInMemoryDatabase("Identity"));
         }
         else
         {
-            // use real database
-            // Requires LocalDB which can be installed with SQL Server Express 2016
-            // https://www.microsoft.com/en-us/download/details.aspx?id=54284
+            // Catalog DbContext
             string catalogConnectionString = configuration.GetConnectionString("CatalogConnection")!;
             services.AddDbContext<CatalogContext>((provider, options) =>
             {
-                // why doesn't this extension method work?
-                // see: https://github.com/NimblePros/Metronome/blob/main/src/NimblePros.Metronome/ServiceRegistrationExtensions.cs#L24
-                //options.UseSqlServer(catalogConnectionString).AddMetronomeDbTracking(provider); ;
-
-                // but this works
-                options.UseSqlServer(catalogConnectionString)
+                options.UseSqlServer(catalogConnectionString, sqlOptions =>
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null))
                     .AddInterceptors(provider.GetRequiredService<DbCallCountingInterceptor>());
             });
 
-            // Add Identity DbContext
+            // Identity DbContext
             string identityConnectionString = configuration.GetConnectionString("IdentityConnection")!;
             services.AddDbContext<AppIdentityDbContext>((provider, options) =>
             {
-                options.UseSqlServer(identityConnectionString);
-                // not sure why AddMetronomeDbTracking extension method doesn't work here
+                options.UseSqlServer(identityConnectionString, sqlOptions =>
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null));
                 options.AddInterceptors(provider.GetRequiredService<DbCallCountingInterceptor>());
             });
         }
