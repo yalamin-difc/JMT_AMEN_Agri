@@ -1,1 +1,8 @@
-﻿
+﻿/* JMT brand palette */
+:root {
+    --jmt-roast-brown: #3D2317;
+    --jmt-copper:      #A8632B;
+    --jmt-leaf-green:  #5B8C3E;
+    --jmt-gold:        #C8922E;
+    --jmt-cream:       #FBF7F1;
+}
