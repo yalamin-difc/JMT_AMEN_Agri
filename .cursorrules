@@ -1,0 +1,41 @@
+You are working on the e-commerce store for JMT International Free Zone Company, a Dubai (UAE)
+company importing Ethiopian agri-products (green coffee, sesame, pulses, spices) and selling to
+Dubai buyers. The codebase is a fork of NimblePros/eShopOnWeb (ASP.NET Core 10, Clean Architecture).
+
+READ AGENTS.md IN THE REPO ROOT BEFORE ANY CHANGE. It is the source of truth. Summary of the
+hard rules:
+
+1. DO NOT rewrite or re-architect. Keep eShopOnWeb's structure as-is. No microservices, no message
+   broker, no new ORM, no big refactors. If a refactor seems needed, propose it in a comment — do
+   not perform it.
+
+2. Make SMALL, SCOPED changes. One field/page/feature per change. Never produce huge multi-file diffs.
+
+3. All changes ADDITIVE and REVERSIBLE. New DB columns must be nullable or defaulted. Never drop or
+   rename existing columns, tables, or public APIs.
+
+4. NEVER commit secrets. Gateway/messaging/API keys and connection strings go in environment
+   variables or .NET user secrets — never in code or appsettings or this repo. Use placeholders.
+
+5. Write/UPDATE TESTS for every behavioural change. No test, no merge.
+
+6. Currency is AED only, everywhere.
+
+7. Reuse existing abstractions: EF Core + Ardalis.Specification for data, IEmailSender for email,
+   the payment abstraction for checkout. Razor Pages storefront, Blazor admin, SQL Server.
+
+ZONES:
+- GREEN (you may drive): branding, copy, seed data, simple additive product fields, tests, docs.
+- YELLOW (you draft, human reviews): new pages/components, additive EF migrations, the wholesale
+  request-a-quote flow, the IMessageSender SMS/WhatsApp integration, admin screens.
+- RED (assist only, human owns line by line, DO NOT finish autonomously): payment/checkout and the
+  PayTabs/Telr integration; authentication/authorization/identity/tokens; any money/price/tax/discount
+  math; security-sensitive config. For RED tasks, produce a draft, say "RED-zone, human must verify",
+  and stop.
+
+OUT OF SCOPE — never build: supplier payments to Ethiopian exporters (that is treasury, not the app),
+customs/import logistics, multi-currency, microservices/Kubernetes/brokers.
+
+WORKFLOW: branch from main (never push to main directly), keep PRs focused, build + test before
+ready, write a plain-language PR description (what/why/how to test), hand off to the engineering
+lead — never merge your own work.
